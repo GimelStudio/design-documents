@@ -1,35 +1,237 @@
-Gimel Studio Technical Design Document
-======================================
+# Gimel Studio Technical Design Document
 
-Draft of the Gimel Studio application design document
-
-
-Goals
------
-
-The technical goal is to allow visual scripting of image effects, transformations, procedual generated images, etc, via nodes.
-
-The goal is to allow the user to create his/her own library of "presets" (node setups) to share and re-use in a way that traditional image-editing program systems often limit.
-
-This could be useful for batch processing and anything from a quick resize to an advanced color-correction setup.
-
-An API for scripting the nodes themselves in Python for those who want to go deeper than the nodes already provided, should be included.
-
-The Gimel Studio core render engine needs to be fully detatched from the UI so that it can be used headless (batch processing from CLI, etc)
-
-Design Decisions
-----------------
-
-1. The goals and technical standpoints of Gimel Studio don't really align well with including krita-like-painting-functionality.
- - Thus, focus will not be placed on creating high-quality painting tools except for paint tools for creating masks, etc.
-
-2. Python and GLSL will be the API languages (GLSL will be optional).
-
-3. Cross-platform (Windows, Linux, MacOs), support for 64-bit systems (32-bit not planned and may not be possible from a technical standpoint).
+*Please note that this is still a draft and is open for discussion. :)*
 
 
-Application Details
--------------------
+## **Global Document**
+
+The global document represents an arbitrary "project" (i.e: the output image) with width and height and the settings to go along with it. This is similar to how Inkscape's "document" is handled.
+
+It defines the:
+* document size (e.g: A4 297x210)
+* output resolution (%)
+* file-type for output
+* global-settings (document background, etc) 
+
+This allows for vector layers since the size is fixed and not based on a raster image input.
+
+## **Composite Stack / Layer Stack**
+
+#### **Layer Composition**
+
+- It acts like a Root folder, that stores a bunch of effects.
+- It will process whatever effect that is inside the composition.
+- The Results of a Composition will be Composited in a Top-down manner just like Layers in Photoshop.
+
+It can have some basic properties, where it treats the result of the composite like a image, and applies basic effects.
+
+- Suggested properties would be:
+  - Crops
+  - Basic Color Adjustment
+  - Transformation
+  - Drop Shadow
+  - Mask
+
+#### **Layer Types**
+
+* Raster layer
+* Vector layer
+
+The document itself can be raster or vector but nodes to convert vector to raster will allow it one-way or the other. In the non-node workflow, there is an option to convert the "vector layer" to raster and vice-versa.
+
+#### **Add Layer Composition**
+
+Few Different Ways to add a New Layer Composition (Same thing but different starting Effect)
+
+- **Add Image Layer** (This is used when drag and drop an image to the Composition Stack)
+
+- **Add Text Layer**
+
+#### Node Composition
+
+- A different type of composition for Pure Node User, it is basically a Container with only one specific Effect / Node Tree called "Node Tree"
+- Is Meant only for Pure Node Users that Prefers to not stack a bunch of effects
+
+It does not have any Basic Property, However, It have "Exposed Property", where user can set up and determine which property to expose for edits
+
+## **Effects**
+
+- There should be multiple types of Effects
+- It is applied in a Layer Composition
+- Multiple Effects can be placed inside a composition
+
+A few Important Nodes Are needed in order to Function Properly:
+
+- Effect Stack Input Node
+  - To Take the Baton from the previous effect
+- Output Node
+  - To Pass the Baton to the next effect
+
+
+
+#### Types of Effects
+
+**Primitive Effects (Locked)**
+
+- Are Effect that only have one nodes
+- The Most Basic Effects
+- Example: Blur, Crop, Brightness and Contrast
+
+**Premade Effects (Locked)**
+
+- Are Commonly used effect that are complex, but comes build in to the software
+- Example: Vignette, HD Bar, LUT
+
+**Addon / Plugins Effects (Locked)**
+
+- Downloaded or Made by other user, effect that are "Installed"
+- The effect is Locked so it feels more "Official"
+
+**Custom Effects**
+
+- Can be exported into Addon / Plugin Effects to share to other people
+- User Made Node Tree / Effects
+- Can be created Blank, or Using other Effect as template
+
+#### Category of Effects
+
+**Independent Effects**
+
+- Effect that does rely on the Effect Stack Input Node At all
+- It must output something for dependent effects to work with
+
+**Dependent Effects**
+
+- Need to have at least one Independent Effects before apply any dependent effects
+- Effect that must use Effect Stack Input Node
+- Might or might not have input other than Effect Stack Input Node
+
+### Important Effects
+
+- **Image**
+  - Independent Effect
+  - Primitive Effect
+  - Added to new composite as the first effect by default
+  - It takes Image Node as input and Output it for dependents effects to use
+
+### **Optional Effects**
+
+- **Text Effect**
+  - Independent Effect
+  - Primitive Effect
+  - Text as input
+  - Font type as input
+  - Text Properties as input (Size, spacing etc etc)
+
+#### **Effects Properties**
+
+**Properties**
+
+-Name / Label
+
+-Description / Notes
+
+-Mask Input
+
+**Exposed Properties**
+
+The Maker of the effect can decide to expose which properties in the effect to the user to edit. 
+
+## **Mask Object**
+
+Mask is an Object type that can be created, to be accepted by Mask Property inside Composition, Effects, and Node
+
+Properties of a Mask Object
+
+- Name
+
+- Input 
+  - Images
+  - Vectors
+  - Other Composition
+  - Independent Effects
+
+## **Mask Input**
+
+**Mask Input is a Properties inside**
+
+1. Composition
+
+2. Effects
+
+3. Mask Input Node
+
+
+
+It can Accept
+
+-Mask Object
+
+-Image
+
+-Other Composition
+
+
+
+## **Important Nodes**
+
+**Effect Stack Input Node**
+
+It takes the output of the previous effect in the Effect Queue from the output node
+
+**Output Node**
+
+If it is not the end of the Effect Queue, it will output to the next Effect Stack Input node, if it is the end of the layer, it will be outputted into the composite
+
+**Script Nodes**
+
+A Node that accepts a script to be use as effect
+
+
+
+#### **Optional Nodes**
+
+(Only Accessible in Node Composition)
+
+**Composition Input Node**
+
+Takes the output of a specific Composition
+
+**Effects Node**
+
+Using Composition Input's output as an input, It will List out the Effects and takes the output of that effects
+
+## **Node Creation**
+
+There are two ways to create **new** node:
+
+1. Scripted Node
+2. Node Tree
+
+The scripted node is a node that is created via the API in Python (code). It can access internals that the primitive nodes use, etc
+
+The node tree is a graphical, node-based programming to create effects/"presets" (a.k.a: similar to a Blender node-group) with the primitive nodes and users can define properties to be exposed.
+
+## **Workflow Use Sample**
+
+Example use-sample with this workflow.
+
+*No-node (layers) version:*
+1. User opens the application and creates a new document with a size of 1920x1080 (raster or vector layer could be selected at this point, but raster will be the default)
+    - A new composition layer is added to the Layer Stack
+    - The layer is shown as a transparent image
+2. The user decides to BLUR the image, so they click the menu to add a new effect. They select blur and it is added to the stack underneath the layer as an effect. 
+3. In the properties panel, the properties of the blur can be adjusted.
+
+*Node version:*
+1. User opens the application and creates a new document with a size of 1920x1080 (raster or vector layer could be selected at this point, but raster will be the default)
+    - A new composition layer is added to the Layer Stack
+    - The layer is shown as a transparent image
+2. The user decides to BLUR the image, **but they want to do it with nodes**, so they switch to the editing tab and add a Blur node. 
+3. In the properties panel, the properties of the blur can be adjusted.
+
+
+## Other technical ideas yet to work out
 
 1. It starts with a JSON file defining everything no matter where the file came from.
 
