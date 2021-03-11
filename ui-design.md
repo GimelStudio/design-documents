@@ -1,4 +1,7 @@
 Gimel Studio UI Design Document
 ===============================
 
-Draft of the Gimel Studio application design document
+*Please note that this is still a draft and is open for discussion. :)*
+
+
+The UI is WIP. See mockups and code in the repository. :)
