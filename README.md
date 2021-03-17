@@ -17,6 +17,12 @@ Technical Design
 [Technical doc](technical-design.md)
 
 
+Nodes
+-----
+
+[Nodes](nodes.md)
+
+
 UI Design
 ---------
 
