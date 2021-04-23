@@ -2,6 +2,7 @@
 
 *Please note that this is still a draft and is open for discussion. :)*
 
+**Some of the below info is OUTDATED now**
 
 ## **Global Document**
 
