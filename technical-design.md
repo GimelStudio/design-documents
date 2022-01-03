@@ -1,8 +1,8 @@
 # Gimel Studio Technical Design Document
 
-*Please note that this is still a draft and is open for discussion. :)*
+*DRAFT - open for discussion. :)*
 
-**Some of the below info is OUTDATED now**
+**Some of the below info is now OUTDATED**
 
 ## **Global Document**
 
