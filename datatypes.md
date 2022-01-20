@@ -1,7 +1,9 @@
 # Node properties
 
+A node property represents either a node socket or widgets in the Properties Panel.
+
 ## IMAGE
-An RGBA Image object which is a container for a numpy array
+An RGBA Image object which is a container for a numpy array, or a binding to another node
 - ``Image()``
 - Yellow
 - FilePicker
@@ -20,7 +22,7 @@ A float value
 - Grey
 - NumberField (or another widget?)
 
-**Can convert between float and int inexplicitly/automatically though, with some data loss obviously.**
+**Can convert between float and int inexplicitly/automatically, with some data loss obviously.**
 
 ## INT
 A positive integer value
@@ -29,21 +31,21 @@ A positive integer value
 - NumberField 
 
 
-# STRING
+## STRING
 A text value
 - ``"hello there!"``
 - Blue
 - TextCtrl 
 
 
-# VECTOR2
+## VECTOR2
 Two integers/floats
 - ``(120, 255)``
 - Purple
 - Mutiple NumberFields
 
 
-# VECTOR3
+## VECTOR3
 Three integers/floats
 - ``(120, 255, 453)``
 - Purple
